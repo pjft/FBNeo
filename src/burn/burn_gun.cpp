@@ -93,6 +93,8 @@ UINT8 BurnGunReturnX(INT32 num)
 	if (num > MAX_GUNS - 1) return 0xff;
 
 	float temp = (float)((BurnGunX[num] >> 8) + 8) / nBurnGunMaxX * 0xff;
+
+	log_cb(RETRO_LOG_INFO, "BurnGunX: %d, interim: %d, num.\n", temp, BurnGunX[num], num);
 	return (UINT8)temp;
 }
 
@@ -106,6 +108,7 @@ UINT8 BurnGunReturnY(INT32 num)
 	if (num > MAX_GUNS - 1) return 0xff;
 	
 	float temp = (float)((BurnGunY[num] >> 8) + 8) / nBurnGunMaxY * 0xff;
+	log_cb(RETRO_LOG_INFO, "BurnGunY: %d, interim: %d, num: %d.\n", temp, BurnGunY[num], num);
 	return (UINT8)temp;
 }
 
