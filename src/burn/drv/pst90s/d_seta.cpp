@@ -1179,6 +1179,8 @@ static struct BurnInputInfo Calibr50InputList[] = {
 	{"P1 Button 1",		BIT_DIGITAL,	DrvJoy1 + 4,	"p1 fire 1"	},
 	{"P1 Button 2",		BIT_DIGITAL,	DrvJoy1 + 5,	"p1 fire 2"	},
 	{"P1 Button 3 (rotate)",		BIT_DIGITAL,	DrvFakeInput + 4,	"p1 fire 3"	},
+	//A("P1 Stick X",     BIT_ANALOG_REL, &DrvAnalogPort0,"p1 x-axis"),
+    //A("P1 Stick Y",     BIT_ANALOG_REL, &DrvAnalogPort1,"p1 y-axis"),
 	{"P1 Shoot Up"       	, BIT_DIGITAL  , DrvFakeInput + 6,  "p1 up 2" }, // 6
 	{"P1 Shoot Down"      	, BIT_DIGITAL  , DrvFakeInput + 7,  "p1 down 2" }, // 7
 	{"P1 Shoot Left"       	, BIT_DIGITAL  , DrvFakeInput + 8,  "p1 left 2" }, // 8
@@ -1193,6 +1195,8 @@ static struct BurnInputInfo Calibr50InputList[] = {
 	{"P2 Button 1",		BIT_DIGITAL,	DrvJoy2 + 4,	"p2 fire 1"	},
 	{"P2 Button 2",		BIT_DIGITAL,	DrvJoy2 + 5,	"p2 fire 2"	},
 	{"P2 Button 3 (rotate)",		BIT_DIGITAL,	DrvFakeInput + 5,	"p2 fire 3"	},
+	// A("P2 Trackball X", BIT_ANALOG_REL, &DrvAnalogPort2,"p2 x-axis"),
+	//A("P2 Trackball Y", BIT_ANALOG_REL, &DrvAnalogPort3,"p2 y-axis"),
 	{"P2 Shoot Up"       	, BIT_DIGITAL  , DrvFakeInput + 10, "p2 up 2" },
 	{"P2 Shoot Down"      	, BIT_DIGITAL  , DrvFakeInput + 11, "p2 down 2" },
 	{"P2 Shoot Left"       	, BIT_DIGITAL  , DrvFakeInput + 12, "p2 left 2" },
@@ -5386,6 +5390,7 @@ static void SuperJoy2Rotate() {
 		for (INT32 n = 0; n < 4; n++) {
 			UINT8* RotationInput = (!i) ? &FakeDrvInputPort0[0] : &FakeDrvInputPort1[0];
 			RotationInput[n] = DrvFakeInput[6 + i*4 + n];
+			printf("Inputs: %X", RotationInput[n]);
 			NeedsSecondStick[i] |= RotationInput[n];
 		}
 	}
