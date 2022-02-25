@@ -2371,12 +2371,12 @@ static UINT32 RotationTimer(void) {
 }
 
 static void RotateRight(INT32 *v) {
-    (*v)--;
+    (*v)-=2;
     if (*v < 0) *v = 11;
 }
 
 static void RotateLeft(INT32 *v) {
-    (*v)++;
+    (*v)+=2;
     if (*v > 11) *v = 0;
 }
 
