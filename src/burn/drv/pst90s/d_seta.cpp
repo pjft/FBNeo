@@ -5410,7 +5410,7 @@ static void SuperJoy2Rotate() {
 
 			if (~DrvDips[3] & 1) {
 				// fake auto-fire - there's probably a more elegant solution for this
-				UINT8 counterfrequency = ((game_rotates == 2) ? 0x2 : 0x4); 
+				UINT8 counterfrequency = ((game_rotates == 2) ? 0x2 : 0x0); 
 				if (nAutoFireCounter[i]++ & counterfrequency)
 				{
 					DrvInputs[i] &= 0xef; // remove the fire bit. Only needed for Downtown
