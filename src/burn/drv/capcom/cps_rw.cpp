@@ -314,6 +314,7 @@ static UINT8 CpsReadPort(const UINT32 ia)
 		
 		// Forgotten Worlds Dial
 		if (Forgottn) {
+			// PJT here we do something, need to figure out what
 			if (ia == 0x053) {
 				return (nDial055 >>  8) & 0xFF;
 			}
@@ -581,6 +582,7 @@ INT32 CpsRwGetInp()
 
 	if (Forgottn) {
 		// Handle analog controls
+		// PJT here we adjust the position of the dials. Need to understand the logic.
 		if (fFakeDip & 0x80) {
 			if (CpsDigUD[0]) nDial055 += 1<<13; // p1
 			if (CpsDigUD[1]) nDial055 -= 1<<13;
