@@ -774,6 +774,8 @@ static struct BurnInputInfo ForgottnInputList[] =
 	{"P1 Button 3 (rotate)", BIT_DIGITAL, DrvFakeInput + 4,	"p1 fire 3"	},
 	A("P1 Aim X", 		BIT_ANALOG_REL, &Analog[0],"p1 x-axis"),
 	A("P1 Aim Y", 		BIT_ANALOG_REL, &Analog[1],"p1 y-axis"),
+	{"P1 Turn - (digital)", BIT_DIGITAL,  CpsDigUD+0,  "p1 fire 2"},
+	{"P1 Turn + (digital)", BIT_DIGITAL,  CpsDigUD+1,  "p1 fire 3"},
 
 	{"P2 Coin"          , BIT_DIGITAL,    CpsInp018+1, "p2 coin"  },
 	{"P2 Start"         , BIT_DIGITAL,    CpsInp018+5, "p2 start" },
@@ -785,7 +787,9 @@ static struct BurnInputInfo ForgottnInputList[] =
 	{"P2 Button 3 (rotate)", BIT_DIGITAL, DrvFakeInput + 5,	"p2 fire 3"	},
 	A("P2 Aim X", 		BIT_ANALOG_REL, &Analog[2],"p2 x-axis"),
 	A("P2 Aim Y", 		BIT_ANALOG_REL, &Analog[3],"p2 y-axis"),
-	
+	{"P2 Turn - (digital)", BIT_DIGITAL,  CpsDigUD+2,  "p2 fire 2"},
+	{"P2 Turn + (digital)", BIT_DIGITAL,  CpsDigUD+3,  "p2 fire 3"},
+
 	{"Reset"            , BIT_DIGITAL,    &CpsReset,   "reset"    },
 	{"Service"          , BIT_DIGITAL,    CpsInp018+2, "service"  },
 
