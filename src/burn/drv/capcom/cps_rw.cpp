@@ -15,7 +15,7 @@ CPSINPSET
 UINT16 CpsInp055 = 0;
 UINT16 CpsInp05d = 0;
 UINT8 CpsDigUD[4] = {0, 0, 0, 0};
-static INT32 nDial055, nDial05d;
+INT32 nDial055, nDial05d;
 
 // puzloop paddles
 INT16 CpsInpPaddle1 = 0;
@@ -314,7 +314,6 @@ static UINT8 CpsReadPort(const UINT32 ia)
 		
 		// Forgotten Worlds Dial
 		if (Forgottn) {
-			// PJT here we do something, need to figure out what
 			if (ia == 0x053) {
 				return (nDial055 >>  8) & 0xFF;
 			}
@@ -582,7 +581,7 @@ INT32 CpsRwGetInp()
 
 	if (Forgottn) {
 		// Handle analog controls
-		// PJT here we adjust the position of the dials. Need to understand the logic.
+#if 0
 		if (fFakeDip & 0x80) {
 			if (CpsDigUD[0]) nDial055 += 1<<13; // p1
 			if (CpsDigUD[1]) nDial055 -= 1<<13;
@@ -598,6 +597,7 @@ INT32 CpsRwGetInp()
 			nDial055 -= (INT32)((INT16)CpsInp055)<<3;
 			nDial05d -= (INT32)((INT16)CpsInp05d)<<3;
 		}
+#endif
 	}
 	
 	if (Pzloop2) {
