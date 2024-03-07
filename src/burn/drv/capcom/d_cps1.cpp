@@ -412,20 +412,7 @@ static INT32 RotateReset() {
 	return 0;
 }
 
-static UINT32 RotationTimer(void) {
-    return nCurrentFrame;
-}
-
 static void RotateRight(INT32 *v, INT32 player) {
-#if 0
-	if (game_rotates == 2) { // downtown mode
-		(*v)-=1;
-		if (*v < 0) *v = 0xb;
-	} else { // calibr50 mode
-		(*v)-=(nRotateTargetVSmemDistance > 1) ? 4 : 1;
-		if (*v < 0) *v = 0x3c;
-	}
-#endif
 	for (int i = 0; i < ((nRotateTargetVSmemDistance > 3) ? 4 : 1); i++) {
 		(*v)-=1;
 		switch (player) {
@@ -437,15 +424,6 @@ static void RotateRight(INT32 *v, INT32 player) {
 }
 
 static void RotateLeft(INT32 *v, INT32 player) {
-#if 0
-	if (game_rotates == 2) { // downtown mode
-		(*v)+=1;
-		if (*v > 0xb) *v = 0;
-	} else { // calibr50 mode
-		(*v)+=(nRotateTargetVSmemDistance > 1) ? 4 : 1;
-		if (*v > 0x3c) *v = 0;
-	}
-#endif
 	for (int i = 0; i < ((nRotateTargetVSmemDistance > 3) ? 4 : 1); i++) {
 		(*v)+=1;
 		switch (player) {
@@ -471,92 +449,8 @@ static UINT8 Joy2Rotate(UINT8 *joy) { // ugly code, but the effect is awesome. -
 	return 0xff;
 }
 
-#if 0
-....replaced with degree calculations in ProcessAnalogInputs()
-#define Rotate16CheckSector(num, joy0, joy1) \
-{ \
-	if (joy0 && joy1) { \
-		if (joy0 > joy1) \
-			return calibr50_sectors[num][0]; \
-		else if (joy0 < joy1) \
-			return calibr50_sectors[num][1]; \
-		else \
-			return calibr50_sectors[num][2]; \
-	} \
-}
-
-static UINT8 Joy2Rotate16(UINT8 *joy) { // even more ugly code
-	// Changing this to 16 directions
-	// 0 is up, 2 is up-right, 4 is right, 6 is down-right
-	// 8 is down, 10 is down-left, 12 is left, 14 is up-left
-
-	static const UINT8 calibr50_sectors[4][3] = {
-		{ 15, 13, 14 }, // up+ left, up left+, up left
-		{  1,  3,  2 }, // up+ right, up right+, up right
-		{  9, 11, 10 }, // down+ left, down left+, down left
-		{  7,  5,  6 }  // down+ right, down right+, down right
-	};
-
-	Rotate16CheckSector(0, joy[0], joy[2]);
-	Rotate16CheckSector(1, joy[0], joy[3]);
-	Rotate16CheckSector(2, joy[1], joy[2]);
-	Rotate16CheckSector(3, joy[1], joy[3]);
-
-	if (joy[0]) return 0;    // up
-	if (joy[1]) return 8;    // down
-	if (joy[2]) return 12;   // left
-	if (joy[3]) return 4;    // right
-
-	return 0xff;
-}
-#endif
-
-static int dialRotation(INT32 playernum) {
-    // p1 = 0, p2 = 1
-	UINT8 player[2] = { 0, 0 };
-	static UINT8 lastplayer[2][2] = { { 0, 0 }, { 0, 0 } };
-
-    if ((playernum != 0) && (playernum != 1)) {
-        bprintf(PRINT_NORMAL, _T("Strange Rotation address => %06X\n"), playernum);
-        return 0;
-    }
-    if (playernum == 0) {
-        player[0] = DrvFakeInput[0]; player[1] = DrvFakeInput[1];
-    }
-    if (playernum == 1) {
-        player[0] = DrvFakeInput[2]; player[1] = DrvFakeInput[3];
-    }
-
-    if (player[0] && (player[0] != lastplayer[playernum][0] || (RotationTimer() > nRotateTime[playernum]+0xf))) {
-		RotateLeft(&nRotate[playernum], playernum);
-		bprintf(PRINT_NORMAL, _T("Player %d Rotate Left => %06X\n"), playernum+1, nRotate[playernum]);
-		nRotateTime[playernum] = RotationTimer();
-		nRotateTarget[playernum] = -1;
-    }
-
-	if (player[1] && (player[1] != lastplayer[playernum][1] || (RotationTimer() > nRotateTime[playernum]+0xf))) {
-        RotateRight(&nRotate[playernum], playernum);
-        bprintf(PRINT_NORMAL, _T("Player %d Rotate Right => %06X\n"), playernum+1, nRotate[playernum]);
-        nRotateTime[playernum] = RotationTimer();
-		nRotateTarget[playernum] = -1;
-	}
-
-	lastplayer[playernum][0] = player[0];
-	lastplayer[playernum][1] = player[1];
-
-	return (nRotate[playernum]);
-}
-
 static UINT8 *rotate_gunpos[2] = {NULL, NULL};
 static UINT8 rotate_gunpos_multiplier = 1;
-
-// Gun-rotation memory locations - do not remove this tag. - dink :)
-// game     p1           p2           clockwise value in memory         multiplier
-// downtown 0xffef90+1   0xfefd0+1    0 1 2 3 4 5 6 7                   1
-//
-// calibr50 0xff2500+3   0xff2520+7   0 1 2 3 4 5 6 7 8 9 a b c d e f   2
-// ff4ede = 0xff = onplane
-// p1 ff0e69 p2 ff0e89? rotate reg.
 
 static void RotateSetGunPosRAM(UINT8 *p1, UINT8 *p2, UINT8 multiplier) {
 	rotate_gunpos[0] = p1;
@@ -640,7 +534,7 @@ static void ProcessAnalogInputs() {
 	// converts analog inputs to something that the existing rotate logic can work with
 	INT16 AnalogPorts[4] = { Analog[1], Analog[0], Analog[3], Analog[2] };
 
-//	if (game_rotates != 1) return;
+	if (game_rotates != 1) return;
 
 	// clear fake inputs
 	// Note: DrvFakeInput 6/10 - up, 7/11 - down, 8/12 - left, 9/13 - right
@@ -655,10 +549,10 @@ static void ProcessAnalogInputs() {
 		float y_axis = (ProcessAnalog(AnalogPorts[i*2 + 0], 0, INPUT_DEADZONE, 0x00, 0xff) - 128.0)/128.0;
 		float x_axis = (ProcessAnalog(AnalogPorts[i*2 + 1], 0, INPUT_DEADZONE, 0x00, 0xff) - 128.0)/128.0;
 
-		int deg = (atan2(-x_axis, -y_axis) * 180 / M_PI) - 360/nRotateTotal/2; // technically, on a scale from 0-f, "0" should be -11.25 to 11.25, and not 0 to 22.5.
+		int deg = (atan2(-x_axis, -y_axis) * 180 / M_PI) - 360/nRotateTotal/2; // technically, on a scale from 0-31, "0" should be -5.625 to 5.625, and not 0 to 11.25.
 		if (deg < 0) deg += 360;
 
-		int g_val = deg * nRotateTotal / 360; // scale from 0-360 to 0-f
+		int g_val = deg * nRotateTotal / 360; // scale from 0-360 to 0-31
 		g_val = nRotateMask - g_val; // invert so up-left is 0xf, instead of up-right
 		g_val = (g_val + -8) & nRotateMask; // 0 starts at the 45deg mark
 		if (!(x_axis == 0.0 && y_axis == 0.0)) { // we're not in deadzone -- changed below
@@ -668,23 +562,6 @@ static void ProcessAnalogInputs() {
 			DrvFakeInput[7 + i*4] = 1; // if g_val is 0, we need to still register movement!
 		}
 	}
-
-#if 0
-	// convert these x and y to something Joy2Rotate could read.
-	for (int i = 0; i < 4; i++) {
-		// ProcessAnalog() will convert the analog value to: 0x00 full left, 0x80 center, 0xff full right
-		// Range 16 makes it too biased towards the directions between diagonals and up/down/left/right
-		// Range 8 makes it more biased towards the diagonals, seems to be the sweet spot
-		UINT8 AnalogRange = 8;
-
-		AnalogInputs[i] = ProcessAnalog(AnalogPorts[i], 0, INPUT_DEADZONE, 0x00, 0xff) / ((256/AnalogRange));
-		if (AnalogInputs[i] < AnalogRange/2) {
-			DrvFakeInput[6 + 2*i] = AnalogRange/2-AnalogInputs[i];
-		} else if (AnalogInputs[i] > AnalogRange/2) {
-			DrvFakeInput[6 + 2*i + 1] = AnalogInputs[i]-AnalogRange/2;
-		}
-	}
-#endif
 }
 
 static void SuperJoy2Rotate() {
@@ -712,8 +589,6 @@ static void SuperJoy2Rotate() {
 		if (NeedsSecondStick[i]) { // we've got input from the second stick
 			UINT8 rot;
 			if (game_rotates == 1) {
-				// calibr50 uses 16 directions
-				//rot = Joy2Rotate16(((!i) ? &FakeDrvInputPort0[0] : &FakeDrvInputPort1[0]));
 				rot = DrvFakeInput[6 + i*4]; // ProcessAnalogInputs() stores it here
 			} else {
 				rot = Joy2Rotate(((!i) ? &FakeDrvInputPort0[0] : &FakeDrvInputPort1[0]));
@@ -2836,7 +2711,7 @@ STDDIPINFO(Ffightae)
 
 static struct BurnDIPInfo ForgottnDIPList[]=
 {
-	DIP_OFFSET(0x16)
+	DIP_OFFSET(0x1a)
 	// Defaults
 	{0x00, 0xff, 0xff, 0x00, NULL                     },
 	{0x01, 0xff, 0xff, 0x03, NULL                     },
@@ -2844,7 +2719,7 @@ static struct BurnDIPInfo ForgottnDIPList[]=
 	{0x03, 0xff, 0xff, 0x00, NULL                     },
 	
 	// Dip A
-	CPS1_COINAGE_1(0x16)
+	CPS1_COINAGE_1(0x1a)
 
 	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
 	{0x00, 0x01, 0x40, 0x40, "Off"                    },
@@ -2855,7 +2730,7 @@ static struct BurnDIPInfo ForgottnDIPList[]=
 	{0x00, 0x01, 0x80, 0x80, "On"                     },
 	
 	// Dip B
-	CPS1_DIFFICULTY_1(0x17)
+	CPS1_DIFFICULTY_1(0x1b)
 	
 	{0   , 0xfe, 0   , 2   , "Service Mode"           },
 	{0x01, 0x01, 0x40, 0x00, "Off"                    },
@@ -2875,7 +2750,7 @@ STDDIPINFO(Forgottn)
 
 static struct BurnDIPInfo ForgottnjDIPList[]=
 {
-	DIP_OFFSET(0x16)
+	DIP_OFFSET(0x1a)
 	// Defaults
 	{0x00, 0xff, 0xff, 0x00, NULL                     },
 	{0x01, 0xff, 0xff, 0x00, NULL                     },
@@ -2888,7 +2763,7 @@ static struct BurnDIPInfo ForgottnjDIPList[]=
 	{0x00, 0x01, 0x80, 0x80, "On"                     },
 
 	// Dip B
-	CPS1_COINAGE_1(0x17)
+	CPS1_COINAGE_1(0x1b)
 
 	{0   , 0xfe, 0   , 2   , "Speed Up"               },
 	{0x01, 0x01, 0x40, 0x00, "Off"                    },
