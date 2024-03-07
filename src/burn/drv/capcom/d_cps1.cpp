@@ -379,6 +379,7 @@ static UINT8  game_rotates = 0;
 static UINT8  nAutoFireCounter[2] 	= {0, 0};
 
 static INT16 Analog[4];
+UINT8 fAutoFire = 0;
 
 extern INT32 nDial055, nDial05d;  // cps-system dial accu's
 
@@ -672,6 +673,7 @@ static struct BurnInputInfo ForgottnInputList[] =
 	{"Dip B"            , BIT_DIPSWITCH,  &Cpi01C    , "dip"      },
 	{"Dip C"            , BIT_DIPSWITCH,  &Cpi01E    , "dip"      },
 	{"Dip D"            , BIT_DIPSWITCH,  &fFakeDip  , "dip"      },
+	{"Dip E"            , BIT_DIPSWITCH,  &fAutoFire , "dip"      },
 };
 
 #undef A
@@ -2711,15 +2713,16 @@ STDDIPINFO(Ffightae)
 
 static struct BurnDIPInfo ForgottnDIPList[]=
 {
-	DIP_OFFSET(0x1a)
+	DIP_OFFSET(0x1b)
 	// Defaults
 	{0x00, 0xff, 0xff, 0x00, NULL                     },
 	{0x01, 0xff, 0xff, 0x03, NULL                     },
 	{0x02, 0xff, 0xff, 0x00, NULL                     },
 	{0x03, 0xff, 0xff, 0x00, NULL                     },
+	{0x04, 0xff, 0xff, 0x00, NULL                     },
 	
 	// Dip A
-	CPS1_COINAGE_1(0x1a)
+	CPS1_COINAGE_1(0x1b)
 
 	{0   , 0xfe, 0   , 2   , "Demo Sound"             },
 	{0x00, 0x01, 0x40, 0x40, "Off"                    },
@@ -2730,7 +2733,7 @@ static struct BurnDIPInfo ForgottnDIPList[]=
 	{0x00, 0x01, 0x80, 0x80, "On"                     },
 	
 	// Dip B
-	CPS1_DIFFICULTY_1(0x1b)
+	CPS1_DIFFICULTY_1(0x1c)
 	
 	{0   , 0xfe, 0   , 2   , "Service Mode"           },
 	{0x01, 0x01, 0x40, 0x00, "Off"                    },
@@ -2744,18 +2747,24 @@ static struct BurnDIPInfo ForgottnDIPList[]=
 	{0   , 0xfe, 0   , 2   , "Invert \"Turn\" inputs" },
 	{0x03, 0x01, 0x80, 0x00, "Off"                    },
 	{0x03, 0x01, 0x80, 0x80, "On"                     },
+
+	// Fake dip for Move and Shoot
+	{0   , 0xfe, 0   , 2   , "Second Stick"           },
+	{0x04, 0x01, 0x01, 0x00, "Moves & Shoots"         },
+	{0x04, 0x01, 0x01, 0x01, "Moves"                  },
 };
 
 STDDIPINFO(Forgottn)
 
 static struct BurnDIPInfo ForgottnjDIPList[]=
 {
-	DIP_OFFSET(0x1a)
+	DIP_OFFSET(0x1b)
 	// Defaults
 	{0x00, 0xff, 0xff, 0x00, NULL                     },
 	{0x01, 0xff, 0xff, 0x00, NULL                     },
 	{0x02, 0xff, 0xff, 0x00, NULL                     },
 	{0x03, 0xff, 0xff, 0x00, NULL                     },
+	{0x04, 0xff, 0xff, 0x00, NULL                     },
 
 	// Dip A
 	{0   , 0xfe, 0   , 2   , "Service Mode"           },
@@ -2763,7 +2772,7 @@ static struct BurnDIPInfo ForgottnjDIPList[]=
 	{0x00, 0x01, 0x80, 0x80, "On"                     },
 
 	// Dip B
-	CPS1_COINAGE_1(0x1b)
+	CPS1_COINAGE_1(0x1c)
 
 	{0   , 0xfe, 0   , 2   , "Speed Up"               },
 	{0x01, 0x01, 0x40, 0x00, "Off"                    },
@@ -2791,6 +2800,11 @@ static struct BurnDIPInfo ForgottnjDIPList[]=
 	{0   , 0xfe, 0   , 2   , "Invert \"Turn\" inputs" },
 	{0x03, 0x01, 0x80, 0x00, "Off"                    },
 	{0x03, 0x01, 0x80, 0x80, "On"                     },
+
+	// Fake dip for Move and Shoot
+	{0   , 0xfe, 0   , 2   , "Second Stick"           },
+	{0x04, 0x01, 0x01, 0x00, "Moves & Shoots"         },
+	{0x04, 0x01, 0x01, 0x01, "Moves"                  },
 };
 
 STDDIPINFO(Forgottnj)
