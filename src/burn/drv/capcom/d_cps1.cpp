@@ -447,7 +447,7 @@ static void RotateLeft(INT32 *v, INT32 player) {
 	}
 #endif
 	for (int i = 0; i < ((nRotateTargetVSmemDistance > 3) ? 4 : 1); i++) {
-		\;
+		(*v)+=1;
 		switch (player) {
 			case 0: nDial055 += (1<<13); break;
 			case 1: nDial05d += (1<<13); break;
@@ -785,7 +785,7 @@ static struct BurnInputInfo ForgottnInputList[] =
 	{"P2 Button 3 (rotate)", BIT_DIGITAL, DrvFakeInput + 5,	"p2 fire 3"	},
 	A("P2 Aim X", 		BIT_ANALOG_REL, &Analog[2],"p2 x-axis"),
 	A("P2 Aim Y", 		BIT_ANALOG_REL, &Analog[3],"p2 y-axis"),
-
+	
 	{"Reset"            , BIT_DIGITAL,    &CpsReset,   "reset"    },
 	{"Service"          , BIT_DIGITAL,    CpsInp018+2, "service"  },
 
