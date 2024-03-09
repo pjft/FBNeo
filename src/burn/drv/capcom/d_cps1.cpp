@@ -410,8 +410,8 @@ static void RotateNegative(INT32 *v, INT32 player) {
 	for (int i = 0; i < nRotateTargetVSmemDistance; i++) {
 		(*v) = ((*v) - 1) & nRotateMask;
 		switch (player) {
-			case 0: nDial055 -= (1<<13); break;
-			case 1: nDial05d -= (1<<13); break;
+			case 0: nDial055 -= 0x40; break;
+			case 1: nDial05d -= 0x40; break;
 		}
 	}
 }
@@ -420,8 +420,8 @@ static void RotatePositive(INT32 *v, INT32 player) {
 	for (int i = 0; i < nRotateTargetVSmemDistance; i++) {
 		(*v) = ((*v) + 1) & nRotateMask;
 		switch (player) {
-			case 0: nDial055 += (1<<13); break;
-			case 1: nDial05d += (1<<13); break;
+			case 0: nDial055 += 0x40; break;
+			case 1: nDial05d += 0x40; break;
 		}
 	}
 }
@@ -441,10 +441,10 @@ static UINT8 Joy2Rotate(UINT8 *joy) { // ugly code, but the effect is awesome. -
 	return 0xff;
 }
 
-static UINT8 *rotate_gunpos[2] = {NULL, NULL};
+static UINT16 *rotate_gunpos[2] = {NULL, NULL};
 static UINT8 rotate_gunpos_multiplier = 1;
 
-static void RotateSetGunPosRAM(UINT8 *p1, UINT8 *p2, UINT8 multiplier) {
+static void RotateSetGunPosRAM(UINT16 *p1, UINT16 *p2, UINT8 multiplier) {
 	rotate_gunpos[0] = p1;
 	rotate_gunpos[1] = p2;
 	rotate_gunpos_multiplier = multiplier;
@@ -487,7 +487,7 @@ static INT32 get_distance(INT32 from, INT32 to) {
 
 static UINT8 adjusted_rotate_gunpos(INT32 i)
 {
-	return *rotate_gunpos[i];
+	return (*rotate_gunpos[i] & 0x7ff) / 0x40;
 }
 
 static void RotateDoTick()
@@ -561,12 +561,11 @@ static void SuperJoy2Rotate() {
 						DrvFakeInput[6 + i*4] = ((rot - 2) & 7) * 4; // convert 8-way to 32-way (forgottn)
 						DrvFakeInput[7 + i*4] = 1;
 						bprintf(0, _T("Joy2Rotate(%x) (plus math)  %x\n"), i, DrvFakeInput[6 + i*4]);
-						// rotate the Joy2Rotate responce (-1&7...) due to laziness (right = 0 in forgottn)
+						// rotate the Joy2Rotate responce (-2&7...) due to laziness (right = 0 in forgottn)
 					} else {
 						nRotateTarget[i] = rot * rotate_gunpos_multiplier;
 					}
 				}
-				//DrvInput[i] &= ~0xf; // cancel out directionals since they are used to rotate here.
 				*DrvInputs[i] = (*DrvInputs[i] & ~0xf) | (nRotateHoldInput[i] & 0xf); // for midnight resistance! be able to duck + change direction of gun.
 				nRotateTry[i] = 0;
 			} else { // cache joystick UDLR if the rotate button isn't pressed.
@@ -599,19 +598,17 @@ static void SuperJoy2Rotate() {
 			if (rot != 0xff) {
 				nRotateTarget[i] = rot * rotate_gunpos_multiplier;
 			}
-			
+
 			nRotateTry[i] = 0;
-			if (~fFakeDip & 0x40) {
-				if (game_rotates == 1) {
-					// PJFT: set autofire?
-					switch (i) {
-						case 0: // p1
-							Inp001 |= 1<<4;
-							break;
-						case 1: // p2
-							Inp000 |= 1<<4;
-							break;
-					}
+
+			if (game_rotates == 1 && ~fFakeDip & 0x40) {
+				switch (i) {
+					case 0: // p1
+						Inp001 |= 1<<4; // fire!!
+						break;
+					case 1: // p2
+						Inp000 |= 1<<4;
+						break;
 				}
 			}
 		}
@@ -18157,7 +18154,7 @@ static void ForgottnRotateInit()
 
 	game_rotates = 1;
 
-	RotateSetGunPosRAM(CpsRamFF + 0xcf20, CpsRamFF + 0xcf70, 1);
+	RotateSetGunPosRAM((UINT16*)CpsRamFF + (0xb36a / 2), (UINT16*)CpsRamFF + (0xb3ba / 2), 1);
 }
 
 static INT32 ForgottnNewerInit()
