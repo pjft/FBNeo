@@ -426,17 +426,19 @@ static void RotatePositive(INT32 *v, INT32 player) {
 	}
 }
 
+// we want 0 to be right
 static UINT8 Joy2Rotate(UINT8 *joy) { // ugly code, but the effect is awesome. -dink
-	if (joy[3] && joy[1]) return 7;    // up left
-	if (joy[3] && joy[0]) return 1;    // up right
+	// rotated counterclockwise
+	if (joy[3] && joy[1]) return 5;     // up left
+	if (joy[3] && joy[0]) return 7;     // up right
 
-	if (joy[2] && joy[1]) return 5;    // down left
-	if (joy[2] && joy[0]) return 3;    // down right
+	if (joy[2] && joy[1]) return 3;     // down left
+	if (joy[2] && joy[0]) return 1;     // down right
 
-	if (joy[3]) return 0;    // up
-	if (joy[2]) return 4;    // down
-	if (joy[1]) return 6;    // left
-	if (joy[0]) return 2;    // right
+	if (joy[3]) return 6;     // up
+	if (joy[2]) return 2;     // down
+	if (joy[1]) return 4;     // left
+	if (joy[0]) return 0;     // right
 
 	return 0xff;
 }
@@ -558,7 +560,7 @@ static void SuperJoy2Rotate() {
 				UINT8 rot = Joy2Rotate(((!i) ? &CpsInp001[0] : &CpsInp000[0]));
 				if (rot != 0xff) {
 					if (game_rotates == 1) {
-						DrvFakeInput[6 + i*4] = ((rot - 2) & 7) * 4; // convert 8-way to 32-way (forgottn)
+						DrvFakeInput[6 + i*4] = ((rot) & 7) * 4; // convert 8-way to 32-way (forgottn)
 						DrvFakeInput[7 + i*4] = 1;
 						bprintf(0, _T("Joy2Rotate(%x) (plus math)  %x\n"), i, DrvFakeInput[6 + i*4]);
 						// rotate the Joy2Rotate responce (-2&7...) due to laziness (right = 0 in forgottn)
